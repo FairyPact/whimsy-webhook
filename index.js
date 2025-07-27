@@ -1,44 +1,50 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const fetch = require("node-fetch");
+import express from "express";
+import cors from "cors";
+import OpenAI from "openai";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-app.use(bodyParser.json());
+const port = process.env.PORT || 3000;
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+app.use(cors());
+app.use(express.json());
+
+// Replace this with your actual API key from OpenAI
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 app.post("/whimsy", async (req, res) => {
-  const { question } = req.body;
-
-  if (!question) return res.status(400).send("Missing question");
+  const question = req.body.question || "Give me a decorating tip.";
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [
-         { role: "system", content: "You are Whimsy the decorating fairy. You give magical room tips, seasonal decorating ideas, fairy fashion, cozy advice, lore, and friendly encouragement in a gentle and whimsical tone." }
-         { role: "user", content: question }
-        ],
-        max_tokens: 120,
-        temperature: 0.8
-      })
+    const chatCompletion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "You are Whimsy the decorating fairy. You give magical room tips, seasonal decorating ideas, fairy fashion, cozy advice, lore, and friendly encouragement in a gentle and whimsical tone.",
+        },
+        {
+          role: "user",
+          content: question,
+        }
+      ],
+      max_tokens: 150,
+      temperature: 0.9
     });
 
-    const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || "(No response)";
-    return res.status(200).send(reply);
-  } catch (err) {
-    console.error("Error:", err);
-    return res.status(500).send("Whimsy’s magic spark fizzled!");
+    const reply = chatCompletion.choices[0].message.content;
+    res.send(reply);
+  } catch (error) {
+    console.error("Error talking to OpenAI:", error);
+    res.status(500).send("Whimsy's magic is having a wobble. Try again soon!");
   }
 });
 
-app.get("/", (req, res) => res.send("🧚 Whimsy Fairy Webhook is live!"));
-app.listen(PORT, () => console.log("Whimsy is listening on port", PORT));
+app.get("/", (req, res) => {
+  res.send("🧚 Whimsy's webhook is live!");
+});
+
+app.listen(port, () => {
+  console.log(`🧚 Whimsy is listening on port ${port}`);
+});
