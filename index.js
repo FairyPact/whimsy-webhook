@@ -23,8 +23,8 @@ app.post("/whimsy", async (req, res) => {
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
         messages: [
-          { role: "system", content: "You are Whimsy, a decorating fairy who gives charming, cozy, magical style suggestions." },
-          { role: "user", content: question }
+         { role: "system", content: "You are Whimsy the decorating fairy. You give magical room tips, seasonal decorating ideas, fairy fashion, cozy advice, lore, and friendly encouragement in a gentle and whimsical tone." }
+         { role: "user", content: question }
         ],
         max_tokens: 120,
         temperature: 0.8
