@@ -30,18 +30,13 @@ app.post("/whimsy", async (req, res) => {
           content: question,
         },
       ],
-      max_tokens: 2048, // Slightly more, still safe
+      max_tokens: 4000, // Slightly more, still safe
       temperature: 0.9,
     });
 
-    let reply = chatCompletion.choices[0].message.content || "";
+   let reply = chatCompletion.choices[0].message.content || "";
+res.send(reply);
 
-    // SL safe length (llInstantMessage max is ~1023 characters)
-    if (reply.length > 1023) {
-      reply = reply.substring(0, 997) + "...";
-    }
-
-    res.send(reply);
   } catch (error) {
     console.error("Error talking to OpenAI:", error);
     res
