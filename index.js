@@ -30,14 +30,14 @@ app.post("/whimsy", async (req, res) => {
           content: question,
         },
       ],
-      max_tokens: 400, // Slightly more, still safe
+      max_tokens: 2048, // Slightly more, still safe
       temperature: 0.9,
     });
 
     let reply = chatCompletion.choices[0].message.content || "";
 
     // SL safe length (llInstantMessage max is ~1023 characters)
-    if (reply.length > 1000) {
+    if (reply.length > 1023) {
       reply = reply.substring(0, 997) + "...";
     }
 
