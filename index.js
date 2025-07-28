@@ -22,22 +22,31 @@ app.post("/whimsy", async (req, res) => {
       messages: [
         {
           role: "system",
-          content: "You are Whimsy the decorating fairy. You give magical room tips, seasonal decorating ideas, fairy fashion, cozy advice, lore, and friendly encouragement in a gentle and whimsical tone.",
+          content:
+            "You are Whimsy the decorating fairy. You give magical room tips, seasonal decorating ideas, fairy fashion, cozy advice, lore, and friendly encouragement in a gentle and whimsical tone.",
         },
         {
           role: "user",
           content: question,
-        }
+        },
       ],
-      max_tokens: 150,
-      temperature: 0.9
+      max_tokens: 400, // Slightly more, still safe
+      temperature: 0.9,
     });
 
-    const reply = chatCompletion.choices[0].message.content;
+    let reply = chatCompletion.choices[0].message.content || "";
+
+    // SL safe length (llInstantMessage max is ~1023 characters)
+    if (reply.length > 1000) {
+      reply = reply.substring(0, 997) + "...";
+    }
+
     res.send(reply);
   } catch (error) {
     console.error("Error talking to OpenAI:", error);
-    res.status(500).send("Whimsy's magic is having a wobble. Try again soon!");
+    res
+      .status(500)
+      .send("Whimsy's magic is having a wobble. Try again soon!");
   }
 });
 
